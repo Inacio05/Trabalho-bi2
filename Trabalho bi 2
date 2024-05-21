@@ -1,0 +1,190 @@
+confirmacao.php 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Reserva - Barbearia XYZ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reserva Confirmada</h1>
+        </header>
+        <main>
+            <p>Obrigado, <?php echo htmlspecialchars($_GET['nome']); ?>! Sua reserva foi confirmada.</p>
+            <a href="index.php">Voltar para a página inicial</a>
+        </main>
+    </div>
+</body>
+</html>
+
+index.php
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia XYZ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bem-vindo à Barbearia XYZ</h1>
+            <p>Seu estilo, nosso compromisso.</p>
+        </header>
+        <main>
+            <h2>Faça sua reserva</h2>
+            <form action="reservas.php" method="POST">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                
+                <label for="telefone">Telefone:</label>
+                <input type="text" id="telefone" name="telefone" required>
+                
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required>
+                
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" name="hora" required>
+                
+                <button type="submit">Reservar</button>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
+
+reservas.php
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "barbearia";
+
+// Cria a conexão
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Verifica a conexão
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nome = $conn->real_escape_string($_POST['nome']);
+    $email = $conn->real_escape_string($_POST['email']);
+    $telefone = $conn->real_escape_string($_POST['telefone']);
+    $data = $conn->real_escape_string($_POST['data']);
+    $hora = $conn->real_escape_string($_POST['hora']);
+    
+    $sql = "INSERT INTO reservas (nome, email, telefone, data, hora) VALUES ('$nome', '$email', '$telefone', '$data', '$hora')";
+    
+    if ($conn->query($sql) === TRUE) {
+        header("Location: confirmacao.php?nome=" . urlencode($nome));
+        exit();
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+$conn->close();
+?>
+
+reservas.sql
+CREATE DATABASE barbearia;
+
+USE barbearia;
+
+CREATE TABLE reservas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15) NOT NULL,
+    data DATE NOT NULL,
+    hora TIME NOT NULL
+);
+
+style.css
+body {
+    font-family: Arial, sans-serif;
+    background-color: #add8e6; /* Azul claro */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+header {
+    background: #333; /* Preto */
+    color: #fff;
+    padding-top: 30px;
+    min-height: 70px;
+    border-bottom: #77aaff 3px solid;
+}
+
+header h1 {
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+main {
+    padding: 20px;
+    background: #fff;
+    margin-top: 10px;
+}
+
+form {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="time"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #333; /* Preto */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #555; /* Preto mais claro */
+}
+
+p {
+    text-align: center;
+}
+
